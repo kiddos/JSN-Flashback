@@ -1,5 +1,11 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  div(class='frame')
+    img(class='image', id='image')
+  div(class='footer')
+    p
+      b 高雄市金山國民小學
+    span(id='title', class='hide')
+
+  script(src='javascripts/images.js')
