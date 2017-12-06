@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css">
+  <title>Title</title>
+
+  <style>
+    .btn-file {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .btn input[type=file] {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      left: 0;
+      filter: alpha(opacity=0);
+      -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+      opacity: 0;
+      background-color: transparent;
+      color: transparent;
+      height: 60px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a href="#" class="navbar-brand">高雄市金山國小 NAS WebAPP 設定</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="form-group">
+      <span class="btn btn-primary btn-file">
+        <input type="file" id="search" webkitdirectory directory multiple />
+        選擇資夾讀入
+      </span>
+
+      <span id="file-choosen" class="label label-default"></span>
+    </div>
+
+    <script type="text/javascript">
+      const path = require('path');
+      const fs = require('fs');
+
+      (function() {
+        let search = document.getElementById('search');
+        search.addEventListener('change', function(event) {
+          const files = event.target.files;
+          const p = path.join(process.env.HOME,
+            path.basename(files[0].webkitRelativePath));
+
+          const name = event.target.files[0].name;
+          fs.lstat(p, function(err, stats) {
+            if (err) {
+              alert(err.message);
+            } else if (stats.isDirectory()) {
+              document.getElementById('file-choosen').textContent = name;
+              var setting = {
+                path: p
+              };
+              fs.writeFile(path.join(__dirname, '..', 'settings.json'),
+                function(err) {
+                  if (err) {
+                    alert(err.message);
+                  } else {
+                    alert('設定完成');
+                  }
+                });
+            } else {
+              alert('資料夾不存在');
+            }
+          });
+        });
+      })();
+    </script>
+  </div>
+</body>
+
+</html>
