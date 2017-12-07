@@ -8,26 +8,6 @@
 
   <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css">
   <title>Title</title>
-
-  <style>
-    .btn-file {
-      position: relative;
-      cursor: pointer;
-    }
-
-    .btn input[type=file] {
-      position: absolute;
-      z-index: 2;
-      top: 0;
-      left: 0;
-      filter: alpha(opacity=0);
-      -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
-      opacity: 0;
-      background-color: transparent;
-      color: transparent;
-      height: 60px;
-    }
-  </style>
 </head>
 
 <body>
@@ -41,12 +21,10 @@
 
   <div class="container-fluid">
     <div class="form-group">
-      <span class="btn btn-primary btn-file">
-        <input type="file" id="search" webkitdirectory directory multiple />
-        選擇資夾讀入
+      <input type="text" class="form-control" id="path" placeholder="資料夾路徑">
+      <span class="btn btn-primary" id="search">
+        確定
       </span>
-
-      <span id="file-choosen" class="label label-default"></span>
     </div>
 
     <script type="text/javascript">
@@ -54,33 +32,37 @@
       const fs = require('fs');
 
       (function() {
-        let search = document.getElementById('search');
-        search.addEventListener('change', function(event) {
-          const files = event.target.files;
-          const p = path.join(process.env.HOME,
-            path.basename(files[0].webkitRelativePath));
-
-          const name = event.target.files[0].name;
-          fs.lstat(p, function(err, stats) {
-            if (err) {
-              alert(err.message);
-            } else if (stats.isDirectory()) {
-              document.getElementById('file-choosen').textContent = name;
-              var setting = {
-                path: p
-              };
-              fs.writeFile(path.join(__dirname, '..', 'settings.json'),
-                function(err) {
-                  if (err) {
-                    alert(err.message);
-                  } else {
-                    alert('設定完成');
-                  }
-                });
+        let p = document.getElementById('path');
+        fs.readFile(path.join(__dirname, '..', '..', 'settings.json'),
+          function(err, content) {
+            if (!err) {
+              var settings = JSON.parse(content);
+              p.value = settings.path
             } else {
-              alert('資料夾不存在');
+              alert(err.message);
             }
           });
+      })();
+
+      (function() {
+        let search = document.getElementById('search');
+        search.addEventListener('click', function() {
+          let p = document.getElementById('path').value;
+          fs.lstat(p, function(err, stats) {
+            if (err) {
+              alert('找不到 ' + p);
+            } else {
+              var settings = {path: p};
+              fs.writeFile(path.join(__dirname, '..', '..', 'settings.json'),
+                JSON.stringify(settings), function(err) {
+                  if (err) {
+                    alert('設定失敗');
+                  } else {
+                    alert('設定成功');
+                  }
+                });
+            }
+          })
         });
       })();
     </script>
